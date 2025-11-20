@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDeviceService_IsValid(t *testing.T) {
-	service := NewDeviceService()
+func TestDeviceManager_IsValid(t *testing.T) {
+	service := NewDeviceManager()
 	service.devices["valid-device"] = &DeviceData{
 		Heartbeats:  make([]time.Time, 0),
 		UploadTimes: make([]int, 0),
@@ -18,8 +18,8 @@ func TestDeviceService_IsValid(t *testing.T) {
 	assert.False(t, service.IsValid("invalid-device"))
 }
 
-func TestDeviceService_RecordHeartbeat(t *testing.T) {
-	service := NewDeviceService()
+func TestDeviceManager_RecordHeartbeat(t *testing.T) {
+	service := NewDeviceManager()
 	service.devices["device-1"] = &DeviceData{
 		Heartbeats:  make([]time.Time, 0),
 		UploadTimes: make([]int, 0),
@@ -37,8 +37,8 @@ func TestDeviceService_RecordHeartbeat(t *testing.T) {
 	assert.Equal(t, t2, *data.LatestHeartbeat)
 }
 
-func TestDeviceService_RecordUploadTime(t *testing.T) {
-	service := NewDeviceService()
+func TestDeviceManager_RecordUploadTime(t *testing.T) {
+	service := NewDeviceManager()
 	service.devices["device-1"] = &DeviceData{
 		Heartbeats:  make([]time.Time, 0),
 		UploadTimes: make([]int, 0),
@@ -53,8 +53,8 @@ func TestDeviceService_RecordUploadTime(t *testing.T) {
 	assert.Equal(t, 2, data.UploadCount)
 }
 
-func TestDeviceService_CalculateUptime_Success(t *testing.T) {
-	service := NewDeviceService()
+func TestDeviceManager_CalculateUptime_Success(t *testing.T) {
+	service := NewDeviceManager()
 	service.devices["device-1"] = &DeviceData{
 		Heartbeats:  make([]time.Time, 0),
 		UploadTimes: make([]int, 0),
@@ -72,8 +72,8 @@ func TestDeviceService_CalculateUptime_Success(t *testing.T) {
 	assert.Equal(t, 40.0, uptime)
 }
 
-func TestDeviceService_CalculateUptime_InsufficientData(t *testing.T) {
-	service := NewDeviceService()
+func TestDeviceManager_CalculateUptime_InsufficientData(t *testing.T) {
+	service := NewDeviceManager()
 	service.devices["device-1"] = &DeviceData{
 		Heartbeats:  make([]time.Time, 0),
 		UploadTimes: make([]int, 0),
@@ -88,8 +88,8 @@ func TestDeviceService_CalculateUptime_InsufficientData(t *testing.T) {
 	assert.Contains(t, err.Error(), "insufficient data")
 }
 
-func TestDeviceService_CalculateUptime_DeviceNotFound(t *testing.T) {
-	service := NewDeviceService()
+func TestDeviceManager_CalculateUptime_DeviceNotFound(t *testing.T) {
+	service := NewDeviceManager()
 
 	_, err := service.CalculateUptime("nonexistent")
 
@@ -97,8 +97,8 @@ func TestDeviceService_CalculateUptime_DeviceNotFound(t *testing.T) {
 	assert.Contains(t, err.Error(), "device not found")
 }
 
-func TestDeviceService_CalculateAverageUploadTime_Success(t *testing.T) {
-	service := NewDeviceService()
+func TestDeviceManager_CalculateAverageUploadTime_Success(t *testing.T) {
+	service := NewDeviceManager()
 	service.devices["device-1"] = &DeviceData{
 		Heartbeats:  make([]time.Time, 0),
 		UploadTimes: make([]int, 0),
@@ -115,8 +115,8 @@ func TestDeviceService_CalculateAverageUploadTime_Success(t *testing.T) {
 	assert.Equal(t, 250*time.Second, avgTime)
 }
 
-func TestDeviceService_CalculateAverageUploadTime_NoData(t *testing.T) {
-	service := NewDeviceService()
+func TestDeviceManager_CalculateAverageUploadTime_NoData(t *testing.T) {
+	service := NewDeviceManager()
 	service.devices["device-1"] = &DeviceData{
 		Heartbeats:  make([]time.Time, 0),
 		UploadTimes: make([]int, 0),
@@ -128,8 +128,8 @@ func TestDeviceService_CalculateAverageUploadTime_NoData(t *testing.T) {
 	assert.Contains(t, err.Error(), "no upload data available")
 }
 
-func TestDeviceService_CalculateAverageUploadTime_DeviceNotFound(t *testing.T) {
-	service := NewDeviceService()
+func TestDeviceManager_CalculateAverageUploadTime_DeviceNotFound(t *testing.T) {
+	service := NewDeviceManager()
 
 	_, err := service.CalculateAverageUploadTime("nonexistent")
 

@@ -9,16 +9,16 @@ func main() {
 	e := echo.New()
 	e.Logger.SetLevel(log.INFO)
 
-	deviceService := NewDeviceService()
-	if err := deviceService.LoadFromFile("deviceid.csv"); err != nil {
+	deviceManager := NewDeviceManager()
+	if err := deviceManager.LoadFromFile("deviceid.csv"); err != nil {
 		e.Logger.Fatal(err)
 	}
 
 	api := e.Group("/api/v1")
 
-	api.POST("/devices/:device_id/heartbeat", HeartbeatHandler(deviceService))
-	api.POST("/devices/:device_id/stats", UploadStatsHandler(deviceService))
-	api.GET("/devices/:device_id/stats", GetStatsHandler(deviceService))
+	api.POST("/devices/:device_id/heartbeat", HeartbeatHandler(deviceManager))
+	api.POST("/devices/:device_id/stats", UploadStatsHandler(deviceManager))
+	api.GET("/devices/:device_id/stats", GetStatsHandler(deviceManager))
 
 	e.Logger.Fatal(e.Start(":6733"))
 }

@@ -7,11 +7,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func HeartbeatHandler(deviceService *DeviceService) echo.HandlerFunc {
+func HeartbeatHandler(deviceManager *DeviceManager) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		deviceID := c.Param("device_id")
 
-		if !deviceService.IsValid(deviceID) {
+		if !deviceManager.IsValid(deviceID) {
 			return c.JSON(http.StatusNotFound, ErrorResponse{
 				Msg: "Device not found",
 			})
@@ -37,7 +37,7 @@ func HeartbeatHandler(deviceService *DeviceService) echo.HandlerFunc {
 			})
 		}
 
-		deviceService.RecordHeartbeat(deviceID, sentAt)
+		deviceManager.RecordHeartbeat(deviceID, sentAt)
 
 		c.Logger().Infof("Heartbeat received: device_id=%s sent_at=%s", deviceID, req.SentAt)
 
@@ -45,11 +45,11 @@ func HeartbeatHandler(deviceService *DeviceService) echo.HandlerFunc {
 	}
 }
 
-func UploadStatsHandler(deviceService *DeviceService) echo.HandlerFunc {
+func UploadStatsHandler(deviceManager *DeviceManager) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		deviceID := c.Param("device_id")
 
-		if !deviceService.IsValid(deviceID) {
+		if !deviceManager.IsValid(deviceID) {
 			return c.JSON(http.StatusNotFound, ErrorResponse{
 				Msg: "Device not found",
 			})
@@ -81,7 +81,7 @@ func UploadStatsHandler(deviceService *DeviceService) echo.HandlerFunc {
 			})
 		}
 
-		deviceService.RecordUploadTime(deviceID, sentAt, req.UploadTime)
+		deviceManager.RecordUploadTime(deviceID, sentAt, req.UploadTime)
 
 		c.Logger().Infof("Stats received: device_id=%s sent_at=%s upload_time=%d", deviceID, req.SentAt, req.UploadTime)
 
@@ -89,22 +89,22 @@ func UploadStatsHandler(deviceService *DeviceService) echo.HandlerFunc {
 	}
 }
 
-func GetStatsHandler(deviceService *DeviceService) echo.HandlerFunc {
+func GetStatsHandler(deviceManager *DeviceManager) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		deviceID := c.Param("device_id")
 
-		if !deviceService.IsValid(deviceID) {
+		if !deviceManager.IsValid(deviceID) {
 			return c.JSON(http.StatusNotFound, ErrorResponse{
 				Msg: "Device not found",
 			})
 		}
 
-		uptime, err := deviceService.CalculateUptime(deviceID)
+		uptime, err := deviceManager.CalculateUptime(deviceID)
 		if err != nil {
 			return c.JSON(http.StatusNoContent, nil)
 		}
 
-		avgUploadTime, err := deviceService.CalculateAverageUploadTime(deviceID)
+		avgUploadTime, err := deviceManager.CalculateAverageUploadTime(deviceID)
 		if err != nil {
 			return c.JSON(http.StatusNoContent, nil)
 		}

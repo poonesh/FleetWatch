@@ -9,26 +9,26 @@ import (
 )
 
 type DeviceData struct {
-	Heartbeats       []time.Time
-	UploadTimes      []int
-	FirstHeartbeat   *time.Time
-	LatestHeartbeat  *time.Time
-	TotalUploadTime  int64
-	UploadCount      int
+	Heartbeats      []time.Time
+	UploadTimes     []int
+	FirstHeartbeat  *time.Time
+	LatestHeartbeat *time.Time
+	TotalUploadTime int64
+	UploadCount     int
 }
 
-type DeviceService struct {
+type DeviceManager struct {
 	devices map[string]*DeviceData
 	mu      sync.RWMutex
 }
 
-func NewDeviceService() *DeviceService {
-	return &DeviceService{
+func NewDeviceManager() *DeviceManager {
+	return &DeviceManager{
 		devices: make(map[string]*DeviceData),
 	}
 }
 
-func (s *DeviceService) LoadFromFile(filename string) error {
+func (s *DeviceManager) LoadFromFile(filename string) error {
 	file, err := os.Open(filename)
 	if err != nil {
 		return fmt.Errorf("failed to open device file: %w", err)
@@ -63,30 +63,30 @@ func (s *DeviceService) LoadFromFile(filename string) error {
 	return nil
 }
 
-func (s *DeviceService) IsValid(deviceID string) bool {
+func (s *DeviceManager) IsValid(deviceID string) bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	_, exists := s.devices[deviceID]
 	return exists
 }
 
-func (s *DeviceService) RecordHeartbeat(deviceID string, sentAt time.Time) {
+func (s *DeviceManager) RecordHeartbeat(deviceID string, sentAt time.Time) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if data, exists := s.devices[deviceID]; exists {
 		data.Heartbeats = append(data.Heartbeats, sentAt)
-		
+
 		if data.FirstHeartbeat == nil || sentAt.Before(*data.FirstHeartbeat) {
 			data.FirstHeartbeat = &sentAt
 		}
-		
+
 		if data.LatestHeartbeat == nil || sentAt.After(*data.LatestHeartbeat) {
 			data.LatestHeartbeat = &sentAt
 		}
 	}
 }
 
-func (s *DeviceService) RecordUploadTime(deviceID string, sentAt time.Time, uploadTime int) {
+func (s *DeviceManager) RecordUploadTime(deviceID string, sentAt time.Time, uploadTime int) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if data, exists := s.devices[deviceID]; exists {
@@ -96,7 +96,7 @@ func (s *DeviceService) RecordUploadTime(deviceID string, sentAt time.Time, uplo
 	}
 }
 
-func (s *DeviceService) CalculateUptime(deviceID string) (float64, error) {
+func (s *DeviceManager) CalculateUptime(deviceID string) (float64, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -120,7 +120,7 @@ func (s *DeviceService) CalculateUptime(deviceID string) (float64, error) {
 	return uptime, nil
 }
 
-func (s *DeviceService) CalculateAverageUploadTime(deviceID string) (time.Duration, error) {
+func (s *DeviceManager) CalculateAverageUploadTime(deviceID string) (time.Duration, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
