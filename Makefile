@@ -2,10 +2,10 @@
 build: build-server build-simulation
 
 build-server:
-	docker build -f Dockerfile.server -t fleetwatch .
+	docker build -f server.Dockerfile -t fleetwatch .
 
 build-simulation:
-	docker build -f Dockerfile.simulator -t fleetwatch-sim .
+	docker build -f simulator.Dockerfile -t fleetwatch-sim .
 
 run-server:
 	docker run -p 6733:6733 fleetwatch
